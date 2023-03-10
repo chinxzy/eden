@@ -15,8 +15,8 @@ export enum Status {
 
 
 export interface Repo {
-    full_name?: string;
-    languages?: string
+    full_name: string;
+    languages: string
     stargazers_count: number;
     watchers_count: number;
 }

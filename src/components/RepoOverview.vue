@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <div v-for="item in repo" :key="item" class="container overview">
+    <div v-for="(item, index) in repo" :key="index" class="container overview">
       <h2>{{ item.full_name }}</h2>
       <div class="others d-flex">
         <p>
@@ -21,11 +21,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
+import { Repo } from "../types/repo";
 export default defineComponent({
   props: {
     repo: {
-      type: [],
+      type: Object,
       required: true,
     },
   },
