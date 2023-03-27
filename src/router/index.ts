@@ -6,6 +6,16 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
       path: "/",
       name: "home",
       component: HomeView,
+   
+    },
+     { 
+        path: "/repo",
+        component: () =>
+            import(/* webpackChunkName: "menu" */ "../components/SingleView.vue"),
+      },
+      { path: '/:pathMatch(.*)*',
+      component: () =>
+            import(/* webpackChunkName: "menu" */ "../components/ErrorView.vue"),
     },
     // {
     //   path: "/about",

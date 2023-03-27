@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Module, Commit } from "vuex";
-import { RepoRequestStatus, Status, Repo, } from "../../types/repo";
+import { RepoRequestStatus, Status, Repo, defaultRepo } from "../../types/repo";
 import { State as Rootstate } from "../index";
 import * as ACTIONS from '../types';
 import { query } from "../../types/general";
@@ -9,7 +9,8 @@ import { query } from "../../types/general";
 export interface State {
     repoRequestError: string;
     repoRequestStatus: RepoRequestStatus;
-    repo: Repo[]
+    repo: Repo[];
+    repos: Repo
 }
 
 const repo: Module<State, Rootstate> = {
@@ -23,7 +24,10 @@ const repo: Module<State, Rootstate> = {
             deleteItem: Status.IDLE
 
         },
-       repo: []
+       repo: [],
+       repos: {
+        ...defaultRepo
+       }
 
 
     }),
@@ -48,6 +52,22 @@ const repo: Module<State, Rootstate> = {
             state.repoRequestStatus.getItem = Status.ERROR;
         },
 
+        //mutation for single repo
+
+        [ACTIONS.GET_SINGLE_REPO_LOADING](state: State): void {
+            state.repoRequestStatus.getItem = Status.LOADING;
+        },
+
+        [ACTIONS.GET_SINGLE_REPO_SUCCESS](state: State, repo: Repo): void {
+            state.repoRequestStatus.getItem = Status.SUCCESS;
+            state.repos = repo
+
+        },
+
+        [ACTIONS.GET_SINGLE_REPO_ERROR](state: State, error: string): void {
+            state.repoRequestError = error;
+            state.repoRequestStatus.getItem = Status.ERROR;
+        },
        
     },
 
@@ -55,6 +75,7 @@ const repo: Module<State, Rootstate> = {
         async removeAlert({ commit }: { commit: Commit }) {
             commit("CLEAR_ALERT");
         },
+
         async fetchRepo({ commit }: { commit: Commit },  user
             
 
@@ -73,6 +94,23 @@ const repo: Module<State, Rootstate> = {
 
         },
        
+        async fetchSingleRepo({ commit }: { commit: Commit },  url
+            
+
+            ) {
+                try {
+                    commit(ACTIONS.GET_SINGLE_REPO_LOADING);
+                    const  {data}  = await axios.get(
+                        `${url}`
+                    );
+                    commit(ACTIONS.GET_SINGLE_REPO_SUCCESS, data);
+    
+                } catch (response: any) {
+                    commit(ACTIONS.GET_SINGLE_REPO_ERROR, response.response.status);
+                    console.log("error: ", response.response.status);
+                }
+    
+            },
     },
 };
 

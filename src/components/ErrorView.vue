@@ -1,28 +1,8 @@
 <template>
   <div class="container-fluid">
-    <div
-      v-for="(item, index) in displayedPost"
-      :key="index"
-      class="container overview"
-    >
-      <router-link
-        :to="{ path: '/repo', force: true, state: { url: `${item.url}` } }"
-        ><h2>{{ item.full_name }}</h2></router-link
-      >
-      <div class="others d-flex">
-        <p>
-          <span class="material-symbols-outlined"> code </span
-          >{{ item.language }}
-        </p>
-        <p>
-          <span class="material-symbols-outlined"> grade </span
-          >{{ item.stargazers_count }}
-        </p>
-        <p>
-          <span class="material-symbols-outlined"> account_tree </span
-          >{{ item.watchers_count }}
-        </p>
-      </div>
+    <div class="container overview">
+      <h1>Error 404</h1>
+      <h3>resource not found</h3>
     </div>
   </div>
 </template>

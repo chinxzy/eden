@@ -10,17 +10,49 @@
         </div>
       </form>
     </div>
-    <RepoOverview :repo="repo" />
+    <div v-if="loadRepo" class="loading">
+      <h2>LOADING</h2>
+    </div>
+    <div v-else>
+      <RepoOverview :displayedPost="displayedPost" />
+      <div class="clearfix btn-group col-md-2 offset-md-5">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          v-if="page != 1"
+          @click="page--"
+        >
+          back
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          v-for="pageNumber in pages"
+          :key="pageNumber"
+          @click="page = pageNumber"
+        >
+          {{ pageNumber }}
+        </button>
+        <button
+          v-if="page < pages.length"
+          type="button"
+          @click="page++"
+          class="btn btn-sm btn-outline-secondary"
+        >
+          front
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 
 <script lang="ts">
 import RepoOverview from "./RepoOverview.vue";
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { State } from "../store/modules/repo";
-import { Repo } from "../types/repo";
+import { Repo, Status } from "../types/repo";
 
 export default defineComponent({
   components: {
@@ -28,19 +60,62 @@ export default defineComponent({
   },
   setup() {
     const user = ref("");
+    const page = ref(1);
+    const perPage = ref(5);
+    const pages = ref<number[]>([]);
     const store = useStore();
 
     const repoState = computed<State>(() => store.state.repo);
 
     const repo = computed<Repo[]>(() => repoState.value.repo);
 
+    const loadingState = ref({
+      getRepo: computed<Status>(
+        () => repoState.value.repoRequestStatus.getItem
+      ),
+    });
+
+    const loadRepo = computed<boolean>(
+      () => loadingState.value.getRepo == Status.LOADING
+    );
+
     const getRepo = () => {
       store.dispatch("repo/fetchRepo", user.value);
+
+      console.log({ pages: pages });
     };
+
+    const paginate = (repo: Repo[]) => {
+      let Page = page;
+      let PerPage = perPage;
+      let from = Page.value * PerPage.value - PerPage.value;
+      let to = Page.value * PerPage.value;
+      return repo.slice(from, to);
+    };
+
+    const displayedPost = computed(() => {
+      return paginate(repo.value);
+    });
+    watch(repo, () => {
+      pages.value.length = 0;
+      let numberOfPages = Math.ceil(repo.value.length / perPage.value);
+
+      for (let i = 1; i < numberOfPages; i++) {
+        pages.value.push(i);
+      }
+      console.log("help");
+    });
     return {
       repo,
       getRepo,
       user,
+      loadingState,
+      loadRepo,
+      page,
+      perPage,
+      paginate,
+      displayedPost,
+      pages,
     };
   },
 });
